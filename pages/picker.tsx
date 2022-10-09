@@ -22,9 +22,11 @@ function Roulette(props: RouletteProps) {
   let counter: number = 0;
   let timerId: number | null = null;
   const numberOfParticipants = props.participants.length;
-  const [selected, setSelected] = useState<string>("?");
-  const [rouletteQueue, setRouletteQueue] = useState<Array<string>>([]);
+
+  const [selected, setSelected] = useState<string>();
+  const [rouletteQueue, setRouletteQueue] = useState<Array<string>>(["?"]);
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
+  const [picking, setPicking] = useState<boolean>(false);
 
   useEffect(() => {
     setRouletteQueue(shuffle(props.participants));
@@ -35,6 +37,8 @@ function Roulette(props: RouletteProps) {
   }, [currentQueueIndex]);
 
   const pick = () => {
+    setPicking(true);
+
     timerId = window.setInterval(() => {
       counter++;
 
@@ -44,6 +48,7 @@ function Roulette(props: RouletteProps) {
 
       if (counter === 15) {
         window.clearInterval(timerId as number);
+        setPicking(false);
       }
     }, 100);
   };
@@ -51,7 +56,7 @@ function Roulette(props: RouletteProps) {
   const listItems = rouletteQueue.map((participant, index) => {
     return (
       <li key={participant}>
-        {currentQueueIndex === index && selected != undefined ? ">" : ""}
+        {currentQueueIndex === index && selected != undefined ? "> " : "  "}
         {participant}
       </li>
     );
@@ -62,7 +67,7 @@ function Roulette(props: RouletteProps) {
       <h1>Roulette</h1>
       <p>{selected}</p>
       <ul>{listItems}</ul>
-      <button onClick={pick}>Pick</button>
+      <button disabled={picking} onClick={pick}>{picking ? "Picking" : "Pick"}</button>
     </div>
   );
 }
