@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/Picker.module.css";
 
 const PickerPage: NextPage = () => {
@@ -18,82 +18,56 @@ type RouletteProps = {
   participants: Array<string>;
 };
 
-interface RouletteState {
-  rouletteQueue: Array<string>;
-  currentQueueIndex: number;
-  selected?: string;
-  timerId?: number;
-}
+function Roulette(props: RouletteProps) {
+  let counter: number = 0;
+  let timerId: number | null = null;
+  const numberOfParticipants = props.participants.length;
+  const [selected, setSelected] = useState<string>("?");
+  const [rouletteQueue, setRouletteQueue] = useState<Array<string>>([]);
+  const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
 
-class Roulette extends React.Component<RouletteProps, RouletteState> {
-  private numberOfParticipants: number;
-  private counter: number;
+  useEffect(() => {
+    setRouletteQueue(shuffle(props.participants));
+  }, []);
 
-  constructor(props: RouletteProps) {
-    super(props);
-    this.state = {
-      rouletteQueue: [],
-      currentQueueIndex: 0,
-    };
-    this.numberOfParticipants = props.participants.length;
-    this.counter = 0;
-  }
+  useEffect(() => {
+    setSelected(rouletteQueue[currentQueueIndex]);
+  }, [currentQueueIndex]);
 
-  componentDidMount(): void {
-    console.log("Did mount!");
-    this.setState({ rouletteQueue: shuffle(this.props.participants) });
-  }
+  const pick = () => {
+    timerId = window.setInterval(() => {
+      counter++;
 
-  handlePick(): void {
-    console.log("handling pick");
-    const tick = () => {
-      this.counter++;
+      setCurrentQueueIndex((previousIndex) =>
+        previousIndex === numberOfParticipants - 1 ? 0 : previousIndex + 1
+      );
 
-      this.setState((state) => ({
-        currentQueueIndex:
-          state.currentQueueIndex === this.numberOfParticipants - 1
-            ? state.currentQueueIndex + 1
-            : 0,
-        selected: state.rouletteQueue[state.currentQueueIndex + 1],
-      }));
-
-      if (this.counter === 15) {
-        clearInterval(this.state.timerId);
+      if (counter === 15) {
+        window.clearInterval(timerId as number);
       }
-    }
+    }, 100);
+  };
 
-    const interval = window.setInterval(tick, 500);
-    this.setState({ timerId: interval });
-  }
-
-  tick(): void {}
-
-  render() {
+  const listItems = rouletteQueue.map((participant, index) => {
     return (
-      <>
-        <h1>Roulette</h1>
-        <div>
-          {this.state.selected === undefined ? "?" : this.state.selected}
-        </div>
-        <ul>
-          {this.state.rouletteQueue.map((participant, index) => {
-            return (
-              <li key={participant}>
-                {this.state.currentQueueIndex === index &&
-                this.state.selected != undefined
-                  ? ">"
-                  : ""}
-                {participant}
-              </li>
-            );
-          })}
-        </ul>
-        <button onClick={this.handlePick}>Pick</button>
-      </>
+      <li key={participant}>
+        {currentQueueIndex === index && selected != undefined ? ">" : ""}
+        {participant}
+      </li>
     );
-  }
+  });
+
+  return (
+    <div>
+      <h1>Roulette</h1>
+      <p>{selected}</p>
+      <ul>{listItems}</ul>
+      <button onClick={pick}>Pick</button>
+    </div>
+  );
 }
 
+// Fisher-Yates algorithm - for equally probable random permutations
 function shuffle(input: string[]) {
   let elements = input.slice();
 
