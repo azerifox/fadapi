@@ -56,8 +56,12 @@ function Roulette(props: RouletteProps) {
   const listItems = rouletteQueue.map((participant, index) => {
     return (
       <li key={participant}>
-        {currentQueueIndex === index && selected != undefined ? "> " : "  "}
-        {participant}
+        <div className={styles.row}>
+          <div className={styles.cursor}>
+            {currentQueueIndex === index && selected != undefined ? ">" : ""}
+          </div>
+          <div className={styles.column}>{participant}</div>
+        </div>
       </li>
     );
   });
@@ -66,8 +70,10 @@ function Roulette(props: RouletteProps) {
     <div>
       <h1>Roulette</h1>
       <p>{selected}</p>
-      <ul>{listItems}</ul>
-      <button disabled={picking} onClick={pick}>{picking ? "Picking" : "Pick"}</button>
+      <ul className={styles.nakedList}>{listItems}</ul>
+      <button disabled={picking} onClick={pick}>
+        {picking ? "Picking" : "Pick"}
+      </button>
     </div>
   );
 }
