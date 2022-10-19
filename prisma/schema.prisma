@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+model Participant {
+  id Int @id @default(autoincrement())
+  name String
+  role Role @default(TeamMember) 
+  pickMemory PickMemory?
+}
+
+enum Role {
+  TeamMember
+  JokeFiller
+}
+
+model PickMemory {
+  id Int @id @default(autoincrement())
+  participant Participant @relation(fields: [participantId], references: [id])
+  participantId Int @unique
+}

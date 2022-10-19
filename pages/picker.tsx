@@ -1,132 +1,33 @@
 import { NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import Roulette from "../components/roulette";
 import styles from "../styles/Picker.module.css";
+import { prisma } from "../prisma/instance";
 
-const PickerPage: NextPage = () => {
+type PageProps = {
+  participants: Array<string>
+}
+
+const PickerPage: NextPage<PageProps> = (props) => {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <Roulette
-          participants={["Max", "Susi", "Peter", "Rudolf", "Anna", "Luise"]}
+          participants={props.participants}
         ></Roulette>
       </main>
     </div>
   );
 };
 
-type RouletteProps = {
-  participants: Array<string>;
-};
+export async function getServerSideProps() {
+  const participants = await prisma.participant.findMany();
+  const participantNames = participants.map((participant) => participant.name);
 
-function Roulette(props: RouletteProps) {
-  let counter: number = 0;
-  let timerId: number | null = null;
-  const numberOfParticipants = props.participants.length;
-
-  const [selected, setSelected] = useState<string>("?");
-  const [rouletteQueue, setRouletteQueue] = useState<Array<string>>(["?"]);
-  const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
-  const [picking, setPicking] = useState<boolean>(false);
-  const [hasResult, setHasResult] = useState<boolean>(false);
-
-  useEffect(() => {
-    setRouletteQueue(shuffle(props.participants));
-  }, []);
-
-  useEffect(() => {
-    setSelected(rouletteQueue[currentQueueIndex]);
-  }, [currentQueueIndex]);
-
-  const pick = () => {
-    setPicking(true);
-
-    const runCount = getRandomInt(
-      numberOfParticipants * 3,
-      numberOfParticipants * 4
-    );
-
-    console.log(`runCount: ${runCount}`);
-
-    timerId = window.setInterval(() => {
-      counter++;
-
-      setCurrentQueueIndex((previousIndex) =>
-        previousIndex === numberOfParticipants - 1 ? 0 : previousIndex + 1
-      );
-
-      if (counter === runCount) {
-        window.clearInterval(timerId as number);
-        counter = 0;
-        setPicking(false);
-        setHasResult(true);
-      }
-    }, 100);
-  };
-
-  const reset = () => {
-    setCurrentQueueIndex(0);
-    setHasResult(false);
-    setSelected("?");
+  return {
+    props: {
+      participants: participantNames
+    }
   }
-
-  const listItems = rouletteQueue.map((participant, index) => {
-    return (
-      <li key={participant}>
-        <div className={styles.row}>
-          <div className={styles.cursor}>
-            {currentQueueIndex === index && (picking || hasResult) ? ">" : ""}
-          </div>
-          <div className={styles.column}>{participant}</div>
-        </div>
-      </li>
-    );
-  });
-
-  const button = hasResult ? (
-    <button onClick={reset}>Reset</button>
-  ) : (
-    <button disabled={picking} onClick={pick}>
-      {picking ? "Picking" : "Pick"}
-    </button>
-  );
-
-  return (
-    <div>
-      <h1>Roulette</h1>
-      <p>{picking || hasResult ? selected : "?"}</p>
-      <ul className={styles.nakedList}>{listItems}</ul>
-      {button}
-    </div>
-  );
-}
-
-// Fisher-Yates algorithm - for equally probable random permutations
-function shuffle(input: string[]) {
-  let elements = input.slice();
-
-  for (
-    let walkingIndex = elements.length - 1;
-    walkingIndex > 0;
-    walkingIndex--
-  ) {
-    // random index from 0 to current position of reverse walking index
-    let randomIndex = Math.floor(Math.random() * (walkingIndex + 1));
-
-    // destructuring assignment syntax
-    [elements[walkingIndex], elements[randomIndex]] = [
-      elements[randomIndex],
-      elements[walkingIndex],
-    ];
-  }
-
-  return elements;
-}
-
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  // minimum inclusive, maximum exclusive
-  return Math.floor(Math.random() * (max - min) + min);
 }
 
 export default PickerPage;
