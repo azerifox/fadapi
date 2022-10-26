@@ -1,8 +1,9 @@
+import { Participant } from "@prisma/client";
 import { useState, useEffect } from "react";
 import styles from "../styles/Picker.module.css";
 
 type RouletteProps = {
-  participants: Array<string>;
+  participants: Array<Participant>;
 };
 
 export default function Roulette(props: RouletteProps) {
@@ -11,7 +12,7 @@ export default function Roulette(props: RouletteProps) {
   const numberOfParticipants = props.participants.length;
 
   const [selected, setSelected] = useState<string>("?");
-  const [rouletteQueue, setRouletteQueue] = useState<Array<string>>(["?"]);
+  const [rouletteQueue, setRouletteQueue] = useState<Array<Participant>>();
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
   const [picking, setPicking] = useState<boolean>(false);
   const [hasResult, setHasResult] = useState<boolean>(false);
@@ -21,15 +22,17 @@ export default function Roulette(props: RouletteProps) {
   }, []);
 
   useEffect(() => {
-    setSelected(rouletteQueue[currentQueueIndex]);
+    if (rouletteQueue !== undefined) {
+      setSelected(rouletteQueue[currentQueueIndex].name);
+    }
   }, [currentQueueIndex]);
 
   const pick = () => {
     setPicking(true);
 
     const runCount = getRandomInt(
-      numberOfParticipants * 3,
-      numberOfParticipants * 4
+      numberOfParticipants * 2,
+      numberOfParticipants * 3
     );
 
     console.log(`runCount: ${runCount}`);
@@ -56,14 +59,14 @@ export default function Roulette(props: RouletteProps) {
     setSelected("?");
   };
 
-  const listItems = rouletteQueue.map((participant, index) => {
+  const listItems = rouletteQueue?.map((participant, index) => {
     return (
-      <li key={participant}>
+      <li key={participant.id}>
         <div className={styles.row}>
           <div className={styles.cursor}>
             {currentQueueIndex === index && (picking || hasResult) ? ">" : ""}
           </div>
-          <div className={styles.column}>{participant}</div>
+          <div className={styles.column}>{participant.name}</div>
         </div>
       </li>
     );
@@ -88,7 +91,7 @@ export default function Roulette(props: RouletteProps) {
 }
 
 // Fisher-Yates algorithm - for equally probable random permutations
-function shuffle(input: string[]) {
+function shuffle(input: Participant[]) {
   let elements = input.slice();
 
   for (

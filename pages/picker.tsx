@@ -1,33 +1,31 @@
 import { NextPage } from "next";
 import Roulette from "../components/roulette";
 import styles from "../styles/Picker.module.css";
-import { prisma } from "../prisma/instance";
+import { Participant } from "@prisma/client";
+import { useEffect, useState } from "react";
 
-type PageProps = {
-  participants: Array<string>
-}
+const PickerPage: NextPage = () => {
+  const [participants, setParticipants] = useState<Array<Participant>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-const PickerPage: NextPage<PageProps> = (props) => {
+  useEffect(() => {
+    fetch("/api/participants").then((response) => {
+      response.json().then((data) => setParticipants(data.participants));
+      setIsLoading(false);
+    });
+  }, []);
+
+  const content = isLoading ? (
+    <p>Loading...</p>
+  ) : (
+    <Roulette participants={participants}></Roulette>
+  );
+
   return (
     <div className={styles.container}>
-      <main className={styles.main}>
-        <Roulette
-          participants={props.participants}
-        ></Roulette>
-      </main>
+      <main className={styles.main}>{content}</main>
     </div>
   );
 };
-
-export async function getServerSideProps() {
-  const participants = await prisma.participant.findMany();
-  const participantNames = participants.map((participant) => participant.name);
-
-  return {
-    props: {
-      participants: participantNames
-    }
-  }
-}
 
 export default PickerPage;
