@@ -1,4 +1,4 @@
-import { Participant } from "@prisma/client";
+import { Participant, Role } from "@prisma/client";
 import { useState, useEffect } from "react";
 import styles from "../styles/Picker.module.css";
 
@@ -66,7 +66,7 @@ export default function Roulette(props: RouletteProps) {
           <div className={styles.cursor}>
             {currentQueueIndex === index && (picking || hasResult) ? ">" : ""}
           </div>
-          <div className={styles.column}>{participant.name}</div>
+          <div className={styles.column}>{participant.name} ({participant.role === Role.TeamMember ? "T" : "JF"})</div>
         </div>
       </li>
     );

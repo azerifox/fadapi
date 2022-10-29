@@ -3,16 +3,16 @@ import Roulette from "../components/roulette";
 import styles from "../styles/Picker.module.css";
 import { Participant } from "@prisma/client";
 import { useEffect, useState } from "react";
+import Api from "../api";
 
 const PickerPage: NextPage = () => {
   const [participants, setParticipants] = useState<Array<Participant>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch("/api/participants").then((response) => {
-      response.json().then((data) => setParticipants(data.participants));
-      setIsLoading(false);
-    });
+    Api.get<Array<Participant>>("/api/participants")
+      .then((participants) => setParticipants(participants))
+      .then(() => setIsLoading(false));
   }, []);
 
   const content = isLoading ? (

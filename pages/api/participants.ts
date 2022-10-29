@@ -7,7 +7,7 @@ export default async function get(
 ) {
   try {
     const participants = await prisma.participant.findMany();
-    response.status(200).json({ participants });
+    response.status(200).json({ data: participants });
   } catch (error) {
     response.status(500).json({ error: "failed to load participants" });
   }
