@@ -24,4 +24,5 @@ model PickMemory {
   id Int @id @default(autoincrement())
   participant Participant @relation(fields: [participantId], references: [id])
   participantId Int @unique
+  pickedAt DateTime @default(now())
 }

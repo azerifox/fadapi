@@ -4,4 +4,14 @@ export default class Api {
     const body = await (response.json() as Promise<{ data: TData }>);
     return body.data;
   }
+
+  public static async post<TBodyData>(
+    resource: string,
+    bodyData: TBodyData
+  ): Promise<void> {
+    const response = await fetch(resource, {
+      method: "POST",
+      body: JSON.stringify(bodyData),
+    });
+  }
 }

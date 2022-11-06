@@ -1,9 +1,12 @@
 import { Participant, Role } from "@prisma/client";
 import { useState, useEffect } from "react";
+import Api from "../api";
+import { PickRequestBody } from "../pages/api/pick-memory";
 import styles from "../styles/Picker.module.css";
 
 type RouletteProps = {
   participants: Array<Participant>;
+  pickedParticipants: Array<Participant>;
 };
 
 export default function Roulette(props: RouletteProps) {
@@ -16,24 +19,71 @@ export default function Roulette(props: RouletteProps) {
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
   const [picking, setPicking] = useState<boolean>(false);
   const [hasResult, setHasResult] = useState<boolean>(false);
+  const [inactiveParticipants, setInactiveParticipants] = useState<
+    Array<Participant>
+  >([]);
 
   useEffect(() => {
     setRouletteQueue(shuffle(props.participants));
+    setInactiveParticipants(props.pickedParticipants);
   }, []);
 
   useEffect(() => {
     if (rouletteQueue !== undefined) {
       setSelected(rouletteQueue[currentQueueIndex].name);
+      console.log(`looking at ${rouletteQueue[currentQueueIndex].name}`)
     }
   }, [currentQueueIndex]);
+
+  useEffect(() => {
+    if (rouletteQueue !== undefined && hasResult === true) {
+      const winner = rouletteQueue[currentQueueIndex];
+      console.log(`submitting winner ${winner.name}`);
+      const requestBody: PickRequestBody = {
+        pickedParticipant: winner,
+      };
+
+      Api.post("/api/pick-memory", requestBody)
+        .then(() => {
+          setInactiveParticipants((previous) => previous.concat(winner));
+        })
+        .catch((error) => console.log(error));
+    }
+  }, [hasResult]);
 
   const pick = () => {
     setPicking(true);
 
-    const runCount = getRandomInt(
+    let runCount = getRandomInt(
       numberOfParticipants * 2,
       numberOfParticipants * 3
     );
+
+    const winParticipationByIndex = rouletteQueue?.map((participant) => {
+      if (
+        participant.role === Role.JokeFiller || 
+        inactiveParticipants.some(
+          (inactiveParticipant) => participant.id === inactiveParticipant.id
+        )
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    }) ?? [];
+
+    let winnerIndex;
+    while (winnerIndex === undefined) {
+      const endPosition = runCount % numberOfParticipants;
+      const isAvailableParticipant = winParticipationByIndex[endPosition];
+
+      if (isAvailableParticipant) {
+        winnerIndex = endPosition;
+        console.log(`winner index: ${winnerIndex}`);
+      } else {
+        runCount++;
+      }
+    }
 
     console.log(`runCount: ${runCount}`);
 
@@ -66,7 +116,10 @@ export default function Roulette(props: RouletteProps) {
           <div className={styles.cursor}>
             {currentQueueIndex === index && (picking || hasResult) ? ">" : ""}
           </div>
-          <div className={styles.column}>{participant.name} ({participant.role === Role.TeamMember ? "T" : "JF"})</div>
+          <div className={styles.column}>
+            {participant.name} (
+            {participant.role === Role.TeamMember ? "T" : "JF"})
+          </div>
         </div>
       </li>
     );
@@ -80,13 +133,23 @@ export default function Roulette(props: RouletteProps) {
     </button>
   );
 
+  const alreadyPickedListItems = inactiveParticipants.map((participant) => {
+    return <li key={participant.id}>{participant.name}</li>;
+  });
+
   return (
-    <div>
-      <h1>Roulette</h1>
-      <p>{picking || hasResult ? selected : "?"}</p>
-      <ul className={styles.nakedList}>{listItems}</ul>
-      {button}
-    </div>
+    <>
+      <div>
+        <h1>Roulette</h1>
+        <p>{picking || hasResult ? selected : "?"}</p>
+        <ul className={styles.nakedList}>{listItems}</ul>
+        {button}
+      </div>
+      <div>
+        <label>Already picked:</label>
+        <ul>{alreadyPickedListItems}</ul>
+      </div>
+    </>
   );
 }
 
