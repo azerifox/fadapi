@@ -31,7 +31,6 @@ export default function Roulette(props: RouletteProps) {
   useEffect(() => {
     if (rouletteQueue !== undefined) {
       setSelected(rouletteQueue[currentQueueIndex].name);
-      console.log(`looking at ${rouletteQueue[currentQueueIndex].name}`)
     }
   }, [currentQueueIndex]);
 

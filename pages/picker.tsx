@@ -30,7 +30,7 @@ const PickerPage: NextPage = () => {
   );
 
   const content = isLoading ? (
-    <p>Loading...</p>
+    <h1>Sekündchen...</h1>
   ) : (
     <Roulette
       participants={participants ?? []}
