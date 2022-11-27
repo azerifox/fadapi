@@ -1,9 +1,9 @@
 import { NextPage } from "next";
-import Roulette from "../components/roulette";
-import styles from "../styles/Picker.module.css";
+import Roulette from "../app/picker/roulette";
+import styles from "../app/picker/Picker.module.css";
 import { Participant, PickMemory } from "@prisma/client";
 import { useEffect, useState } from "react";
-import Api from "../api";
+import Api from "../app/api";
 
 const PickerPage: NextPage = () => {
   const [participants, setParticipants] = useState<Array<Participant>>();

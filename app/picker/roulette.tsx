@@ -1,8 +1,12 @@
 import { Participant, Role } from "@prisma/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import Particles from "react-tsparticles";
+import { Container, Engine } from "tsparticles-engine";
+import { loadConfettiPreset } from "tsparticles-preset-confetti";
 import Api from "../api";
-import { PickRequestBody } from "../pages/api/pick-memory";
-import styles from "../styles/Picker.module.css";
+import { PickRequestBody } from "../../pages/api/pick-memory";
+import styles from "./Picker.module.css";
+import { onDemandConfettiOptions } from "../particleOptions";
 
 type RouletteProps = {
   participants: Array<Participant>;
@@ -23,6 +27,17 @@ export default function Roulette(props: RouletteProps) {
     Array<Participant>
   >([]);
 
+  const particleContainerRef = useRef<Container>(null);
+  const particlesInit = useCallback(async (engine: Engine) => {
+    console.log(engine);
+
+    await loadConfettiPreset(engine);
+  }, []);
+
+  const particlesLoaded = useCallback((container: Container | undefined) => {
+    console.log(container);
+  }, []);
+
   useEffect(() => {
     setRouletteQueue(shuffle(props.participants));
     setInactiveParticipants(props.pickedParticipants);
@@ -35,7 +50,7 @@ export default function Roulette(props: RouletteProps) {
   }, [currentQueueIndex]);
 
   useEffect(() => {
-    if (rouletteQueue !== undefined && hasResult === true) {
+    if (rouletteQueue !== undefined && hasResult) {
       const winner = rouletteQueue[currentQueueIndex];
       console.log(`submitting winner ${winner.name}`);
       const requestBody: PickRequestBody = {
@@ -58,18 +73,19 @@ export default function Roulette(props: RouletteProps) {
       numberOfParticipants * 3
     );
 
-    const winParticipationByIndex = rouletteQueue?.map((participant) => {
-      if (
-        participant.role === Role.JokeFiller || 
-        inactiveParticipants.some(
-          (inactiveParticipant) => participant.id === inactiveParticipant.id
-        )
-      ) {
-        return false;
-      } else {
-        return true;
-      }
-    }) ?? [];
+    const winParticipationByIndex =
+      rouletteQueue?.map((participant) => {
+        if (
+          participant.role === Role.JokeFiller ||
+          inactiveParticipants.some(
+            (inactiveParticipant) => participant.id === inactiveParticipant.id
+          )
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      }) ?? [];
 
     let winnerIndex;
     while (winnerIndex === undefined) {
@@ -136,6 +152,16 @@ export default function Roulette(props: RouletteProps) {
     return <li key={participant.id}>{participant.name}</li>;
   });
 
+  let particles = hasResult ? (
+    <Particles
+      container={particleContainerRef}
+      init={particlesInit}
+      options={onDemandConfettiOptions}
+    />
+  ) : (
+    <div></div>
+  );
+
   return (
     <>
       <div>
@@ -148,6 +174,7 @@ export default function Roulette(props: RouletteProps) {
         <label>Already picked:</label>
         <ul>{alreadyPickedListItems}</ul>
       </div>
+      {particles}
     </>
   );
 }

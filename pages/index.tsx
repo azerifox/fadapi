@@ -1,8 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
-import styles from "../styles/Home.module.css";
+import styles from "../app/Home.module.css";
 
 const Home: NextPage = () => {
   return (
@@ -31,7 +30,7 @@ const Home: NextPage = () => {
             <a className={[styles.card, styles.longCard].join(" ")}>
               <h2>Bedarfskonfetti</h2>
               <p>
-                Virtuelles Konfetti vom Discounter, für Situationen wie "Zünd
+                Virtuelles Konfetti vom Discounter, für Situationen wie "Zünd'
                 den Knaller" und Erfolge jeder Art.
               </p>
             </a>
