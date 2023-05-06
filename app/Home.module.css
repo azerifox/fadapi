@@ -22,51 +22,5 @@
 }
 
 .accent {
-  color: #8AB400
-}
-
-.command-row {
-  display: flex;
-  flex-direction: row;
-  align-content: flex-start;
-  align-items: flex-start;
-}
-
-.command {
-  color: #1894CF;
-  margin: 1rem;
-  flex: 1;
-  max-width: 50px;
-}
-
-.description {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin: 1rem;
-}
-
-.option {
-  margin: 0 1rem;
-  color: #1894CF;
-}
-
-.help {
-  flex: 1 1 40%;
-  margin: 2rem;
-}
-
-.help-prompt {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.help-output {
-  margin-bottom: 1.5rem;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  color: var(--primary-accent-color);
 }

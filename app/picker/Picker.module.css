@@ -1,32 +1,90 @@
-.container {
-  padding: 0 2rem;
+.terminal {
+  background-color: black;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+  padding: 1em;
+  margin-top: 2rem;
+  height: 60vh;
+  min-width: 400px;
+  flex: 1 1 60%;
+  overflow: auto;
 }
 
-.main {
-  min-height: 100vh;
-  padding: 4rem 0;
+.prompt {
+  color: #8ab400;
+  margin-right: 10px;
+}
+
+.blink {
+  display: inline-block;
+  width: 10px;
+  height: 1.3em;
+  vertical-align: text-top;
+  background-color: #7b7c7f;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  51% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.command-row {
+  display: flex;
+  flex-direction: row;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+
+.command {
+  color: var(--secondary-accent-color);
+  margin: 1rem;
   flex: 1;
+  max-width: 50px;
+}
+
+.description {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  flex: 1;
+  margin: 1rem;
 }
 
-.nakedList {
-  padding: 0;
-  list-style-type: none;
-  list-style: none;
+.option {
+  margin: 0 1rem;
+  color: var(--secondary-accent-color);
+}
+
+.help {
+  flex: 1 1 40%;
+  margin: 2rem;
+}
+
+.accent {
+  color: var(--primary-accent-color);
+}
+
+.help-prompt {
+  margin-top: 1rem;
+  margin-bottom: 1.3rem;
+}
+
+.help-output {
+  margin-bottom: 1.5rem;
 }
 
 .row {
   display: flex;
-  flex-direction:row;
-}
-
-.cursor {
-  flex: 1;
-}
-
-.column {
-  flex: 5;
+  flex-direction: row;
+  justify-content: flex-start;
 }
