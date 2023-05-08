@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./Picker.module.css";
 import { getRandomInt } from "../calculations";
+import generateAsciiArtOutput from "./ascii-art";
 
 interface TerminalProps {
   prompt?: string;
@@ -8,8 +9,11 @@ interface TerminalProps {
 export default function Terminal({ prompt }: TerminalProps) {
   const [promptBuffer, setPromptBuffer] = useState("");
   const [bufferIndex, setBufferIndex] = useState(0);
+  const [output, setOutput] = useState<string[]>([]);
 
   useEffect(() => {
+    const asciiArtLines = generateAsciiArtOutput("John Doe");
+    setOutput(asciiArtLines);
     setPromptBuffer("");
     setBufferIndex(0);
   }, [prompt]);
@@ -29,9 +33,11 @@ export default function Terminal({ prompt }: TerminalProps) {
   return (
     <div className={styles.terminal}>
       <Prompt active={true}>{promptBuffer}</Prompt>
-      {/* {Array.from({length: 40}, (_, index) => (
-        <div key={index}>Some test text...</div>
-      ))} */}
+      {output.map((line, index) => (
+        <div key={index} className={styles.output}>
+          {line}
+        </div>
+      ))}
     </div>
   );
 }
