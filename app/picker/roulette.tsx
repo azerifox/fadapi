@@ -7,6 +7,7 @@ import Api from "../api";
 import { PickRequestBody } from "../../pages/api/pick-memory";
 import styles from "./Picker.module.css";
 import { onDemandConfettiOptions } from "../particleOptions";
+import { getRandomInt } from "../calculations";
 
 type RouletteProps = {
   participants: Array<Participant>;
@@ -199,11 +200,4 @@ function shuffle(input: Participant[]) {
   }
 
   return elements;
-}
-
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  // minimum inclusive, maximum exclusive
-  return Math.floor(Math.random() * (max - min) + min);
 }

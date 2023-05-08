@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { MouseEventHandler, ReactElement } from "react";
 import styles from "./Picker.module.css";
 
 interface HelpTextProps {
@@ -27,19 +27,37 @@ const CommandList = ({ children }: CommandListProps) => {
 interface commandProps {
   name: string;
   description: string;
+  onCommandClick: (commandText: string) => void;
   options?: { option: string; text: string }[];
 }
-export const Command = ({ name, description, options }: commandProps) => {
+export const Command = ({
+  name,
+  description,
+  onCommandClick,
+  options,
+}: commandProps) => {
   return (
     <div className={styles["command-row"]}>
-      <div className={styles.command}>{name}</div>
+      <div
+        className={styles.command}
+        onMouseOver={() => onCommandClick(`fadapi ${name}`)}
+        onMouseLeave={() => onCommandClick("")}
+      >
+        {name}
+      </div>
       <div className={styles.description}>
         {description}
         {options &&
           options.map(({ option, text }) => (
             <span key={option}>
               Use
-              <span className={styles.option}>{option}</span>
+              <span
+                className={styles.option}
+                onMouseOver={() => onCommandClick(`fadapi ${name} ${option}`)}
+                onMouseLeave={() => onCommandClick("")}
+              >
+                {option}
+              </span>
               {text}
             </span>
           ))}

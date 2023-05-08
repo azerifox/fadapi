@@ -53,6 +53,11 @@
   max-width: 50px;
 }
 
+.command:hover {
+  color: var(--primary-accent-color);
+  cursor: pointer;
+}
+
 .description {
   display: flex;
   flex-direction: column;
@@ -63,6 +68,11 @@
 .option {
   margin: 0 1rem;
   color: var(--secondary-accent-color);
+}
+
+.option:hover {
+  color: var(--primary-accent-color);
+  cursor: pointer;
 }
 
 .help {
