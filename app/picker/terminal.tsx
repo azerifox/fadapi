@@ -12,7 +12,7 @@ export default function Terminal({ prompt }: TerminalProps) {
   const [output, setOutput] = useState<string[]>([]);
 
   useEffect(() => {
-    const asciiArtLines = generateAsciiArtOutput("John Doe");
+    const asciiArtLines = generateAsciiArtOutput("abcdefghijklmnopqrstuvwxyz");
     setOutput(asciiArtLines);
     setPromptBuffer("");
     setBufferIndex(0);

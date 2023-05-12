@@ -4,7 +4,7 @@ import styles from "./Picker.module.css";
 import { useEffect, useState } from "react";
 
 export default function Picker() {
-  const [prompt, setPrompt] = useState("fadapi pick");
+  const [prompt, setPrompt] = useState("");
 
   useEffect(() => {
     const element = document.getElementById("input");
