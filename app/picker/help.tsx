@@ -2,7 +2,7 @@ import { MouseEventHandler, ReactElement } from "react";
 import styles from "./Picker.module.css";
 
 interface HelpTextProps {
-  children: ReactElement<typeof Command>[];
+  children: ReactElement<typeof CommandHelp>[];
 }
 export default function HelpText({ children }: HelpTextProps) {
   return (
@@ -18,43 +18,49 @@ export default function HelpText({ children }: HelpTextProps) {
 }
 
 interface CommandListProps {
-  children: ReactElement<typeof Command>[];
+  children: ReactElement<typeof CommandHelp>[];
 }
 const CommandList = ({ children }: CommandListProps) => {
   return <div>{children}</div>;
 };
 
-interface commandProps {
+interface commandHelpProps {
+  commandId: string;
   name: string;
   description: string;
-  onCommandClick: (commandText: string) => void;
-  options?: { option: string; text: string }[];
+  onHoverChange: (commandText: string) => void;
+  onCommandClick: (commandId: string) => void;
+  options?: { option: string; text: string; optionId: string }[];
 }
-export const Command = ({
+export const CommandHelp = ({
+  commandId,
   name,
   description,
+  onHoverChange,
   onCommandClick,
   options,
-}: commandProps) => {
+}: commandHelpProps) => {
   return (
     <div className={styles["command-row"]}>
       <div
         className={styles.command}
-        onMouseOver={() => onCommandClick(`fadapi ${name}`)}
-        onMouseLeave={() => onCommandClick("")}
+        onMouseOver={() => onHoverChange(`fadapi ${name}`)}
+        onMouseLeave={() => onHoverChange("")}
+        onClick={() => onCommandClick(commandId)}
       >
         {name}
       </div>
       <div className={styles.description}>
         {description}
         {options &&
-          options.map(({ option, text }) => (
+          options.map(({ option, text, optionId }) => (
             <span key={option}>
               Use
               <span
                 className={styles.option}
-                onMouseOver={() => onCommandClick(`fadapi ${name} ${option}`)}
-                onMouseLeave={() => onCommandClick("")}
+                onMouseOver={() => onHoverChange(`fadapi ${name} ${option}`)}
+                onMouseLeave={() => onHoverChange("")}
+                onClick={() => onCommandClick(optionId)}
               >
                 {option}
               </span>
