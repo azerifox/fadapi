@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Picker.module.css";
 import { getRandomInt } from "../calculations";
 import { Command } from "./commands";
@@ -8,10 +8,19 @@ interface TerminalProps {
   activeCommand: Command | null;
 }
 export default function Terminal({ prompt, activeCommand }: TerminalProps) {
+  const terminalRef = useRef<HTMLDivElement>(null);
   const [promptBuffer, setPromptBuffer] = useState("");
   const [bufferIndex, setBufferIndex] = useState(0);
   const [outputHistory, setOutputHistory] = useState<OutputLine[]>([]);
   const [commandOutput, setCommandOutput] = useState<OutputLine[]>([]);
+
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      if (terminalRef.current) {
+        terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+      }
+    }, 10);
+  }, []);
 
   useEffect(() => {
     setPromptBuffer("");
@@ -48,6 +57,7 @@ export default function Terminal({ prompt, activeCommand }: TerminalProps) {
           }));
         });
       setCommandOutput(activeCommandOutput);
+      scrollToBottom();
     }
   }, [activeCommand]);
 
@@ -56,17 +66,22 @@ export default function Terminal({ prompt, activeCommand }: TerminalProps) {
       setOutputHistory((oldHistory) => [...oldHistory, ...commandOutput]);
       setCommandOutput([]);
       activeCommand.onExecutionDone();
+      scrollToBottom();
     }
   };
 
   const activeElement = activeCommand ? (
-    <Output lines={commandOutput} onOutputDone={handleOutputDone} />
+    <Output
+      lines={commandOutput}
+      onOutputChanged={scrollToBottom}
+      onOutputDone={handleOutputDone}
+    />
   ) : (
     <Prompt active={true}>{promptBuffer}</Prompt>
   );
 
   return (
-    <div className={styles.terminal}>
+    <div ref={terminalRef} className={styles.terminal}>
       <OutputHistory lines={outputHistory} />
       {activeElement}
     </div>
@@ -95,9 +110,10 @@ interface OutputLine {
 
 interface OutputProps {
   lines: OutputLine[];
+  onOutputChanged: () => void;
   onOutputDone: () => void;
 }
-const Output = ({ lines, onOutputDone }: OutputProps) => {
+const Output = ({ lines, onOutputChanged, onOutputDone }: OutputProps) => {
   const [lineBuffer, setLineBuffer] = useState<string[]>([]);
   const [bufferIndex, setBufferIndex] = useState(0);
 
@@ -118,6 +134,7 @@ const Output = ({ lines, onOutputDone }: OutputProps) => {
           lines[bufferIndex].content,
         ]);
         setBufferIndex((previousBufferIndex) => previousBufferIndex + 1);
+        onOutputChanged();
       }, lines[bufferIndex].suspense ?? 0);
 
       return () => clearTimeout(timer);
